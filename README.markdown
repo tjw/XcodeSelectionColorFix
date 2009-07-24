@@ -11,6 +11,6 @@ Installation
 - Build and install the bundle where ever you like
 - Inform Xcode of its location with:
 
-		defaults write com.apple.Xcode ExtraPlugInFolders "(/path/to/folder/containing/plugin)"
+		defaults write com.apple.Xcode ExtraPlugInFolders -array-add "/path/to/folder/containing/plugin"
 
-- Relaunch Xcode	
+- Relaunch Xcode
