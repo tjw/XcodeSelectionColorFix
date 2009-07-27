@@ -37,7 +37,7 @@ do { \
 {
     // xcodebuild will load Xcode plugins too, but doesn't have the text related classes.  Don't emit warnings if running xcodebuild.
     char **progname = _NSGetProgname();
-    if (progname && strstr(*progname, "xcodebuild") != NULL)
+    if (progname && *progname && strstr(*progname, "xcodebuild") != NULL)
         return;
     
     // Could also check the superclasses of these, but that seems like overkill
