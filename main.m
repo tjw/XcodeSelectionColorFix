@@ -2,6 +2,7 @@
 
 #import "OBMethodReplacement.h"
 #import <libkern/OSAtomic.h>
+#import <crt_externs.h>
 
 @interface com_omnigroup_XcodeSelectionColorFix : NSObject
 @end
@@ -34,6 +35,11 @@ do { \
     
 + (void)load;
 {
+    // xcodebuild will load Xcode plugins too, but doesn't have the text related classes.  Don't emit warnings if running xcodebuild.
+    char **progname = _NSGetProgname();
+    if (progname && strstr(*progname, "xcodebuild") != NULL)
+        return;
+    
     // Could also check the superclasses of these, but that seems like overkill
     REQUIRE_CLASS(XCLayoutManager);
     
