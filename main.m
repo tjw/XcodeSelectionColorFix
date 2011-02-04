@@ -12,22 +12,30 @@ static NSColor *(*original_secondarySelectedControlColor)(id self, SEL _cmd) = N
 static void (*original_drawBackgroundForGlyphRange)(id self, SEL _cmd, NSRange glyphsToShow, NSPoint origin) = NULL;
 static int32_t drawBackgroundForGlyphRangeNesting = 0;
 
-static Class XCLayoutManager = Nil;
-static Class XCTextView = Nil;
+static Class DVTLayoutManager = Nil;
+static Class DVTFontAndColorTheme = Nil;
 
 #define REQUIRE_CLASS(x) \
 do { \
     x = NSClassFromString((id)CFSTR(#x)); \
     if (!x) { \
-        NSLog(@"%s: Unable to find class '%s'!", __PRETTY_FUNCTION__, #x); \
+        NSLog(@"%s: Unable to find class \"%s\"!", __PRETTY_FUNCTION__, #x); \
         return; \
     } \
 } while (0)
 
-#define REQUIRE_METHOD(object, name) \
+#define REQUIRE_CLASS_METHOD(cls, name) \
 do { \
-    if (![object respondsToSelector:@selector(name)]) { \
-        NSLog(@"%s: '%s' doesn't respond to '%s'.", __PRETTY_FUNCTION__, #object, #name); \
+    if (![cls respondsToSelector:@selector(name)]) { \
+        NSLog(@"%s: \"%s\" doesn't respond to +%s.", __PRETTY_FUNCTION__, #cls, #name); \
+        return; \
+    } \
+} while (0)
+
+#define REQUIRE_INSTANCE_METHOD(cls, name) \
+do { \
+    if (![cls instancesRespondToSelector:@selector(name)]) { \
+        NSLog(@"%s: Instances of \"%s\" don't respond to -%s.", __PRETTY_FUNCTION__, #cls, #name); \
         return; \
     } \
 } while (0)
@@ -41,11 +49,12 @@ do { \
         return;
     
     // Could also check the superclasses of these, but that seems like overkill
-    REQUIRE_CLASS(XCLayoutManager);
+    REQUIRE_CLASS(DVTLayoutManager);
     
-    REQUIRE_CLASS(XCTextView);
-    REQUIRE_METHOD(XCTextView, textEditorBackgroundColor);
-    REQUIRE_METHOD(XCTextView, textEditorSelectionBackgroundColor);
+    REQUIRE_CLASS(DVTFontAndColorTheme);
+    REQUIRE_CLASS_METHOD(DVTFontAndColorTheme, currentTheme);
+    REQUIRE_INSTANCE_METHOD(DVTFontAndColorTheme, sourceTextSelectionColor);
+    REQUIRE_INSTANCE_METHOD(DVTFontAndColorTheme, consoleTextSelectionColor);
     
     original_secondarySelectedControlColor = (typeof(original_secondarySelectedControlColor))OBReplaceMethodImplementationWithSelectorOnClass(object_getClass([NSColor class]), @selector(secondarySelectedControlColor), self, @selector(replacement_secondarySelectedControlColor));
     if (!original_secondarySelectedControlColor) {
@@ -53,7 +62,7 @@ do { \
         return;
     }
 
-    original_drawBackgroundForGlyphRange = (typeof(original_drawBackgroundForGlyphRange))OBReplaceMethodImplementationWithSelectorOnClass(XCLayoutManager, @selector(drawBackgroundForGlyphRange:atPoint:), self, @selector(replacement_drawBackgroundForGlyphRange:atPoint:));
+    original_drawBackgroundForGlyphRange = (typeof(original_drawBackgroundForGlyphRange))OBReplaceMethodImplementationWithSelectorOnClass(DVTLayoutManager, @selector(drawBackgroundForGlyphRange:atPoint:), self, @selector(replacement_drawBackgroundForGlyphRange:atPoint:));
     if (!original_drawBackgroundForGlyphRange) {
         NSLog(@"Unable to replace method.");
         return;
@@ -66,9 +75,10 @@ do { \
         return original_secondarySelectedControlColor(self, _cmd);
     
     // Return a color interpolated between the user's background color and selection color.
-    NSColor *color0 = [[XCTextView performSelector:@selector(textEditorBackgroundColor)] colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
-    NSColor *color1 = [[XCTextView performSelector:@selector(textEditorSelectionBackgroundColor)] colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
-
+    id theme = [DVTFontAndColorTheme performSelector:@selector(currentTheme)];
+    NSColor *color0 = [[theme performSelector:@selector(sourceTextSelectionColor)] colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+    NSColor *color1 = [[theme performSelector:@selector(sourceTextBackgroundColor)] colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+    
     return [color0 blendedColorWithFraction:0.5 ofColor:color1];
 }
 
