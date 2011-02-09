@@ -12,11 +12,10 @@ static NSColor *(*original_secondarySelectedControlColor)(id self, SEL _cmd) = N
 static void (*original_drawBackgroundForGlyphRange)(id self, SEL _cmd, NSRange glyphsToShow, NSPoint origin) = NULL;
 static int32_t drawBackgroundForGlyphRangeNesting = 0;
 
-static void (*original_mouseInside)(id self, SEL _cmd, NSEvent *event) = NULL;
-
 static Class DVTLayoutManager = Nil;
 static Class DVTFontAndColorTheme = Nil;
 static Class DVTSourceTextView = Nil;
+static Class IDEConsoleTextView = Nil;
 
 #define REQUIRE_CLASS(x) \
 do { \
@@ -60,6 +59,7 @@ do { \
     REQUIRE_INSTANCE_METHOD(DVTFontAndColorTheme, consoleTextSelectionColor);
     
     REQUIRE_CLASS(DVTSourceTextView);
+    REQUIRE_CLASS(IDEConsoleTextView);
     
     original_secondarySelectedControlColor = (typeof(original_secondarySelectedControlColor))OBReplaceMethodImplementationWithSelectorOnClass(object_getClass([NSColor class]), @selector(secondarySelectedControlColor), self, @selector(replacement_secondarySelectedControlColor));
     if (!original_secondarySelectedControlColor) {
@@ -73,8 +73,12 @@ do { \
         return;
     }
 
-    original_mouseInside = (typeof(original_mouseInside))OBReplaceMethodImplementationWithSelectorOnClass(DVTSourceTextView, @selector(_mouseInside:), self, @selector(_mouseInside:));
-    if (!original_mouseInside) {
+    // Install light-mode cursors for the source and debug console
+    if (!OBReplaceMethodImplementationWithSelectorOnClass(DVTSourceTextView, @selector(_mouseInside:), self, @selector(_mouseInside:))) {
+        NSLog(@"Unable to replace method.");
+        return;
+    }
+    if (!OBReplaceMethodImplementationWithSelectorOnClass(IDEConsoleTextView, @selector(_mouseInside:), self, @selector(_mouseInside:))) {
         NSLog(@"Unable to replace method.");
         return;
     }
