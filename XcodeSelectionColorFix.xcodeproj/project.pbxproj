@@ -10,6 +10,7 @@
 		344DC542101A2768003A6019 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 344DC541101A2768003A6019 /* main.m */; };
 		34849A9B101A51FE003602A4 /* OBMethodReplacement.m in Sources */ = {isa = PBXBuildFile; fileRef = 34849A9A101A51FE003602A4 /* OBMethodReplacement.m */; };
 		34849ADE101A56FE003602A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34849ADD101A56FE003602A4 /* Cocoa.framework */; };
+		34C076AA130350E60075B54B /* cursor.png in Resources */ = {isa = PBXBuildFile; fileRef = 34C076A9130350E60075B54B /* cursor.png */; };
 		8D5B49A804867FD3000E48DA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8D5B49A704867FD3000E48DA /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
@@ -20,6 +21,7 @@
 		34849A99101A51FE003602A4 /* OBMethodReplacement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OBMethodReplacement.h; sourceTree = "<group>"; };
 		34849A9A101A51FE003602A4 /* OBMethodReplacement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OBMethodReplacement.m; sourceTree = "<group>"; };
 		34849ADD101A56FE003602A4 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		34C076A9130350E60075B54B /* cursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cursor.png; sourceTree = "<group>"; };
 		8D576316048677EA00EA77CD /* XcodeSelectionColorFix.xcplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = XcodeSelectionColorFix.xcplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D576317048677EA00EA77CD /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -60,6 +62,7 @@
 			isa = PBXGroup;
 			children = (
 				8D576317048677EA00EA77CD /* Info.plist */,
+				34C076A9130350E60075B54B /* cursor.png */,
 				8D5B49A704867FD3000E48DA /* InfoPlist.strings */,
 			);
 			name = Resources;
@@ -111,7 +114,11 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB911E08733D790010E9CD /* Build configuration list for PBXProject "XcodeSelectionColorFix" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 089C166AFE841209C02AAC07 /* XcodeSelectionColorFix */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -127,6 +134,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D5B49A804867FD3000E48DA /* InfoPlist.strings in Resources */,
+				34C076AA130350E60075B54B /* cursor.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

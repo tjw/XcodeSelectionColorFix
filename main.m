@@ -12,8 +12,11 @@ static NSColor *(*original_secondarySelectedControlColor)(id self, SEL _cmd) = N
 static void (*original_drawBackgroundForGlyphRange)(id self, SEL _cmd, NSRange glyphsToShow, NSPoint origin) = NULL;
 static int32_t drawBackgroundForGlyphRangeNesting = 0;
 
+static void (*original_mouseInside)(id self, SEL _cmd, NSEvent *event) = NULL;
+
 static Class DVTLayoutManager = Nil;
 static Class DVTFontAndColorTheme = Nil;
+static Class DVTSourceTextView = Nil;
 
 #define REQUIRE_CLASS(x) \
 do { \
@@ -56,6 +59,8 @@ do { \
     REQUIRE_INSTANCE_METHOD(DVTFontAndColorTheme, sourceTextSelectionColor);
     REQUIRE_INSTANCE_METHOD(DVTFontAndColorTheme, consoleTextSelectionColor);
     
+    REQUIRE_CLASS(DVTSourceTextView);
+    
     original_secondarySelectedControlColor = (typeof(original_secondarySelectedControlColor))OBReplaceMethodImplementationWithSelectorOnClass(object_getClass([NSColor class]), @selector(secondarySelectedControlColor), self, @selector(replacement_secondarySelectedControlColor));
     if (!original_secondarySelectedControlColor) {
         NSLog(@"Unable to replace method.");
@@ -64,6 +69,12 @@ do { \
 
     original_drawBackgroundForGlyphRange = (typeof(original_drawBackgroundForGlyphRange))OBReplaceMethodImplementationWithSelectorOnClass(DVTLayoutManager, @selector(drawBackgroundForGlyphRange:atPoint:), self, @selector(replacement_drawBackgroundForGlyphRange:atPoint:));
     if (!original_drawBackgroundForGlyphRange) {
+        NSLog(@"Unable to replace method.");
+        return;
+    }
+
+    original_mouseInside = (typeof(original_mouseInside))OBReplaceMethodImplementationWithSelectorOnClass(DVTSourceTextView, @selector(_mouseInside:), self, @selector(_mouseInside:));
+    if (!original_mouseInside) {
         NSLog(@"Unable to replace method.");
         return;
     }
@@ -90,6 +101,28 @@ do { \
     } @finally {
         OSAtomicDecrement32(&drawBackgroundForGlyphRangeNesting);
     }
+}
+
+// Normally the IBeamCursor is set by this hitting a implementation on NSTextView. I'm hooking it on DVTSourceTextView for now, but it might need to be more tightly tuned.
+- (void)_mouseInside:(NSEvent *)event;
+{
+    static NSCursor *cursor = nil;
+    
+    if (!cursor) {
+        NSString *imagePath = [[NSBundle bundleWithIdentifier:@"com.omnigroup.XcodeSelectionColorFix"] pathForImageResource:@"cursor"];
+        if (!imagePath) {
+            NSLog(@"No cursor image found!");
+        } else {
+            NSImage *image = [[NSImage alloc] initWithContentsOfFile:imagePath];
+            if (!image)
+                NSLog(@"Unable to load cursor image");
+            else
+                cursor = [[NSCursor alloc] initWithImage:image hotSpot:[[NSCursor IBeamCursor] hotSpot]];
+        }
+        if (!cursor)
+            cursor = [[NSCursor IBeamCursor] retain];
+    }
+    [cursor set];
 }
 
 @end
