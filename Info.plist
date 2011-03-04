@@ -28,5 +28,7 @@
 	<string>YES</string>
 	<key>XCPluginHasUI</key>
 	<string>NO</string>
+	<key>XC4Compatible</key>
+	<true/>
 </dict>
 </plist>
